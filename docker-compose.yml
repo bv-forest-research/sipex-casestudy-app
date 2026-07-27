@@ -1,0 +1,66 @@
+services:
+  app:
+    container_name: app
+    build: .
+    platform: linux/amd64
+    ports:
+      - "3838:3838"
+    volumes:
+      - ./app:/srv/shiny-server:ro
+    environment:
+      - SHINY_LOG_STDERR=1
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3838"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # nginx:
+  #   container_name: nginx
+  #   build:
+  #     context: .
+  #     dockerfile: nginx/Dockerfile
+  #   ports:
+  #     - "0.0.0.0:80:80"
+  #     - "0.0.0.0:443:443"
+  #   volumes:
+  #     - ./certbot/conf:/etc/nginx/ssl
+  #     - ./certbot/data:/var/www/certbot
+  #   depends_on:
+  #     - app
+  #   logging:
+  #     driver: "json-file"
+  #     options:
+  #       max-size: "10m"
+  #       max-file: "3"
+  #   networks:
+  #     - app-network
+  # 
+  # certbot:
+  #   container_name: certbot
+  #   image: certbot/certbot
+  #   command: certonly --webroot --webroot-path=/var/www/certbot --email lizzy@eclipsegeomatics.com --agree-tos --no-eff-email -d restoration.skeenasalmon.info -d www.restoration.skeenasalmon.info -v
+  #   volumes:
+  #     - ./certbot/conf:/etc/letsencrypt
+  #     - ./certbot/logs:/var/log/letsencrypt
+  #     - ./certbot/data:/var/www/certbot
+  #   logging:
+  #     driver: "json-file"
+  #     options:
+  #       max-size: "10m"
+  #       max-file: "3"
+  #   networks:
+  #     - app-network
+
+networks:
+  app-network:
+    driver: bridge

@@ -20,7 +20,7 @@ RUN apt-get update && apt-get install -y \
 # install r packages incl dependencies
 RUN R -e "install.packages(c('shiny', 'DBI', 'RPostgres', 'digest', 'DT', 'shinyjs', \
                              'yaml', 'leaflet', 'sf', 'leaflet.extras', 'readxl', 'dplyr', \
-                             'htmltools'), dependencies=TRUE)"
+                             'htmltools', 'shinyWidgets'), dependencies=TRUE)"
 
 # run app using shiny user
 RUN sed -i 's/^# run_as.*$/run_as shiny;/' /etc/shiny-server/shiny-server.conf

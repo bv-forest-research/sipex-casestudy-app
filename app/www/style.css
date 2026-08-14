@@ -1,5 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap');
 
+/* ==========================================================================
+   general
+========================================================================== */
 html, body { height: 100%; margin: 0; overflow: hidden; }
 body { font-family: 'Raleway', sans-serif; }
 
@@ -12,7 +15,7 @@ body { font-family: 'Raleway', sans-serif; }
 }
 
 /* ==========================================================================
-   HEADER
+   nav
 ========================================================================== */
 .masthead, .masthead * { box-sizing: border-box; }
 .masthead ul, .masthead li { margin: 0; padding: 0; list-style: none; }
@@ -88,7 +91,7 @@ header.masthead {
   .partner-logos img { max-width: 45%; }
 }
 
-/* ---- nav ---- */
+/* ---- navbar ---- */
 .navbar {
   background-color: #09322e;
   width: 100%;
@@ -135,7 +138,7 @@ header.masthead {
 }
 .navbar-toggler .fa { font-size: 1.5rem; }
 
-/* collapse */
+/* smaller screen */
 .navbar-collapse { display: none; }
 
 @media (max-width: 768px) {
@@ -192,7 +195,7 @@ header.masthead {
 }
 
 /* ==========================================================================
-  MAIN
+   main
 ========================================================================== */
 .app-container {
   position: relative;
@@ -225,11 +228,77 @@ header.masthead {
 }
 .sidebar-content h4 {
   margin-top: 0;
-  font-size: 14px;
+  margin-bottom: 16px;
+  font-size: 18px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #09322e;
+  padding-bottom: 10px;
+  border-bottom: 3px solid #e8aa00; 
+}
+
+.details-dataset-title {
+  font-weight: 800;
+  font-size: 18px;
+  color: #09322e;
+  margin: 0 0 14px;
+  line-height: 1.3;
+}
+
+.details-subhead {
+  margin: 18px 0 8px;
+  font-size: 12px;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: #52606d;
 }
+.details-subhead:first-of-type {
+  margin-top: 0;
+}
+
+.details-link-button {
+  display: inline-block;
+  margin-top: 16px;
+  padding: 10px 20px;
+  background-color: #09322e;
+  color: #fff !important;
+  font-weight: 700;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-radius: 4px;
+  text-decoration: none !important;
+  transition: background-color 0.2s ease;
+}
+.details-link-button:hover {
+  background-color: #e8aa00;
+  color: #09322e !important;
+}
+
+.details-site-count {
+  font-size: 12px;
+  color: #52606d;
+  margin-bottom: 10px;
+}
+.details-site-list {
+  list-style: disc;
+  padding-left: 18px;
+  margin-bottom: 14px;
+  font-size: 14px;
+}
+.details-site-list li { margin-bottom: 4px; }
+.details-link {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #09322e;
+  text-decoration: none;
+  border-bottom: 1px solid #e8aa00;
+  padding-bottom: 1px;
+}
+.details-link:hover { color: #e8aa00; }
 
 .toggle-tab {
   display: flex;
@@ -305,4 +374,25 @@ header.masthead {
   .sidebar-wrapper.right.open ~ .mobile-overlay {
     display: block;
   }
+}
+
+.details-tags { margin-bottom: 12px; display: flex; flex-wrap: wrap; gap: 8px; }
+.details-tag {
+  display: inline-block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2933;
+  background: #e8aa00;
+  border: none;
+  border-radius: 10px;
+  padding: 6px 16px;
+}
+
+.details-tags-heading {
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #52606d;
 }

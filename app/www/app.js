@@ -5,7 +5,6 @@
     var nav = document.getElementById('main-navigation-toggle');
     nav.classList.toggle('show');
   }
-
 function toggleDropdown(event, id) {
   event.preventDefault();
   var menu = document.getElementById(id);
@@ -16,7 +15,6 @@ function toggleDropdown(event, id) {
   });
   if (!isOpen) menu.classList.add('show');
 }
-
 // click outside the nav closes any open dropdown
 document.addEventListener('click', function (e) {
   if (!e.target.closest('.navbar')) {
@@ -25,7 +23,6 @@ document.addEventListener('click', function (e) {
     });
   }
 });
-
 /* ---------------------------------------------------------------------
   sidebar toggle - need to resize map
 --------------------------------------------------------------------- */
@@ -36,21 +33,17 @@ document.addEventListener('click', function (e) {
       if (window.mapInvalidate) window.mapInvalidate();
     }, 320);
   }
-
 function closeSidebars() {
   document.getElementById('left-sidebar').classList.remove('open');
   document.getElementById('right-sidebar').classList.remove('open');
 }
-
 window.mapInvalidate = function () {
   var widget = HTMLWidgets.find('#map');
   if (widget && widget.getMap) { widget.getMap().invalidateSize(); }
 };
-
 window.addEventListener('resize', function () {
   if (window.mapInvalidate) window.mapInvalidate();
 });
-
 document.addEventListener('DOMContentLoaded', function () {
   // start collapsed on mobile so the map isn't blocked on first paint
   if (window.innerWidth <= 768) {
@@ -59,3 +52,15 @@ document.addEventListener('DOMContentLoaded', function () {
   var overlay = document.getElementById('mobile-overlay');
   if (overlay) overlay.addEventListener('click', closeSidebars);
 });
+
+/* ---------------------------------------------------------------------
+  Shiny -> JS bridge: open right sidebar when server sets active dataset
+--------------------------------------------------------------------- */
+if (window.Shiny) {
+  Shiny.addCustomMessageHandler('openRightSidebar', function (msg) {
+    var wrapper = document.getElementById('right-sidebar');
+    if (wrapper && !wrapper.classList.contains('open')) {
+      toggleSidebar('right');
+    }
+  });
+}

@@ -28,6 +28,9 @@ RUN sed -i 's/^# run_as.*$/run_as shiny;/' /etc/shiny-server/shiny-server.conf
 # serve /srv/shiny-server as a single app (app_dir) instead of a directory of multiple apps (site_dir)
 RUN sed -i 's#site_dir /srv/shiny-server;#app_dir /srv/shiny-server;#' /etc/shiny-server/shiny-server.conf
 
+# keep process alive
+RUN sed -i 's#app_dir /srv/shiny-server;#app_dir /srv/shiny-server;\n    app_init_timeout 300;\n    app_idle_timeout 0;#' /etc/shiny-server/shiny-server.conf
+
 # add files to container (baked-in copy as a fallback/default; compose volume mount overrides this at runtime)
 # uses the default site_dir (/srv/shiny-server) that ships with rocker/shiny — no custom conf needed
 COPY app /srv/shiny-server

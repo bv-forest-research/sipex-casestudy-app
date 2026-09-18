@@ -14,6 +14,11 @@ body { font-family: 'Raleway', sans-serif; }
   flex-direction: column;
 }
 
+.bs-container .dropdown-menu {
+  z-index: 3500 !important;
+  font-family: 'Raleway', sans-serif;
+}
+
 /* ==========================================================================
    nav
 ========================================================================== */
@@ -273,7 +278,7 @@ header.masthead {
   transition: background-color 0.2s ease;
 }
 .details-link-button:hover {
-  background-color: #e8aa00;
+  background-color: #e8aa00 !important;
   color: #09322e !important;
 }
 

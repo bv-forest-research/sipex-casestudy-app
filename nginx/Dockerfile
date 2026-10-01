@@ -10,6 +10,6 @@ RUN mkdir -p ${NGINX_DIR}/sites-enabled
 COPY ./nginx/setup/nginx.conf ${NGINX_DIR}
 COPY ./nginx/setup/sites-available/* ${NGINX_DIR}/sites-available
 
-RUN ln -s ${NGINX_DIR}/sites-available/registry.conf ${NGINX_DIR}/sites-enabled/registry.conf
+RUN ln -s ${NGINX_DIR}/sites-available/app.conf ${NGINX_DIR}/sites-enabled/app.conf
 
 EXPOSE 80

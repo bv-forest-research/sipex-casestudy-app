@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 /* ---------------------------------------------------------------------
-  Shiny -> JS bridge: open right sidebar when server sets active dataset
+  Shiny -> JS bridge
 --------------------------------------------------------------------- */
 if (window.Shiny) {
   Shiny.addCustomMessageHandler('openRightSidebar', function (msg) {
@@ -62,5 +62,31 @@ if (window.Shiny) {
     if (wrapper && !wrapper.classList.contains('open')) {
       toggleSidebar('right');
     }
+  });
+
+  // open the details sidebar, then zoom to the clicked case study
+  Shiny.addCustomMessageHandler('zoomToSites', function (msg) {
+    var wrapper = document.getElementById('right-sidebar');
+    var needsOpen = wrapper && !wrapper.classList.contains('open');
+    if (needsOpen) toggleSidebar('right');
+
+    setTimeout(function () {
+      var widget = HTMLWidgets.find('#map');
+      if (!widget || !widget.getMap) return;
+      var map = widget.getMap();
+      map.invalidateSize({ pan: false });
+
+      var lats = [].concat(msg.lats);
+      var lngs = [].concat(msg.lngs);
+
+      if (lats.length === 1) {
+        // single site: center on it, zoom in but never zoom out
+        map.setView([lats[0], lngs[0]], Math.max(map.getZoom(), 12), { animate: true });
+      } else {
+        // multiple sites: same extent behavior as before
+        var bounds = L.latLngBounds(lats.map(function (lat, i) { return [lat, lngs[i]]; }));
+        map.fitBounds(bounds);
+      }
+    }, needsOpen ? 340 : 0);
   });
 }

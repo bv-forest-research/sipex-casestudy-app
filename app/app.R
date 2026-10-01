@@ -7,6 +7,7 @@ library(sf)
 
 BASE_COLOR <- "#1f2933"
 HIGHLIGHT_COLOR <- "#e8aa00"
+BC_BOUNDS <- list(lng1 = -139.06, lat1 = 48.3, lng2 = -114.03, lat2 = 60.0)
 
 TAG_SEP <- "|"
 
@@ -100,7 +101,11 @@ find_site_locations <- function(x, results = list()) {
         if (!is.na(lat_val) && !is.na(lng_val)) {
           name_key <- keys[grepl("name", keys, ignore.case = TRUE)]
           site_name <- if (length(name_key) >= 1) x[[name_key[1]]] else NA
-          results[[length(results) + 1]] <- list(name = site_name, lat = lat_val, lng = lng_val)
+          results[[length(results) + 1]] <- list(
+              name = site_name, lat = lat_val, lng = lng_val,
+              lat_raw = trimws(as.character(x[[lat_key[1]]])),
+              lng_raw = trimws(as.character(x[[lng_key[1]]]))
+            )
           return(results)
         }
       }
@@ -122,9 +127,13 @@ for (ds in case_study_datasets) {
       dataset_name  = dataset_name,
       dataset_url   = paste0(ckan_base_url, "/dataset/", dataset_name),
       dataset_notes = ds$notes %||% "",
+      org_title     = ds$organization$title %||% ds$organization$name %||% "",
+      org_url       = if (!is.null(ds$organization$name)) paste0(ckan_base_url, "/organization/", ds$organization$name) else "",
       site_name     = site_name,
       lat           = s$lat,
       lng           = s$lng,
+      lat_raw       = s$lat_raw,
+      lng_raw       = s$lng_raw,
       stringsAsFactors = FALSE
     )
   }
@@ -133,8 +142,9 @@ for (ds in case_study_datasets) {
 if (length(map_point_rows) == 0) {
   case_study_map_points <- data.frame(
     point_id = character(), dataset_title = character(), dataset_name = character(),
-    dataset_url = character(), dataset_notes = character(), site_name = character(),
-    lat = numeric(), lng = numeric()
+    dataset_url = character(), dataset_notes = character(),
+    org_title = character(), org_url = character(),
+    site_name = character(), lat = numeric(), lng = numeric(), lat_raw = character(), lng_raw = character()
   )
 } else {
   case_study_map_points <- do.call(rbind, map_point_rows)
@@ -478,7 +488,17 @@ server <- function(input, output, session) {
   })
   
   output$map <- renderLeaflet({
-    m <- leaflet() |> addTiles()
+    m <- leaflet() |>
+      addProviderTiles(
+        providers$Esri.WorldGrayCanvas,
+        options = providerTileOptions(maxNativeZoom = 16, maxZoom = 19)
+      ) |>
+      addTiles(
+        urlTemplate = "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}",
+        attribution = "Esri",
+        options = tileOptions(maxNativeZoom = 16, maxZoom = 19, zIndex = 40)
+      ) |>
+      addMapPane("highlighted", zIndex = 620)
     
     for (nm in names(wms_layers)) {
       m <- m |> addWMSTiles(
@@ -486,7 +506,7 @@ server <- function(input, output, session) {
         layers = wms_layers[[nm]],
         group = nm,
         options = WMSTileOptions(
-          format = "image/png", transparent = TRUE, opacity = 0.6,
+          format = "image/png", transparent = TRUE, opacity = 1,
           zIndex = wms_z[[nm]]
         )
       )
@@ -496,20 +516,25 @@ server <- function(input, output, session) {
       addLayersControl(
         overlayGroups = names(wms_layers),
         options = layersControlOptions(collapsed = TRUE),
-        position = "bottomright"
+        position = "topright"
       ) |>
       hideGroup(setdiff(names(wms_layers), "Timber Supply Areas"))
     
-    if (nrow(case_study_map_points) > 0) {
-      m <- m |>
-        fitBounds(
-          lng1 = min(case_study_map_points$lng), lat1 = min(case_study_map_points$lat),
-          lng2 = max(case_study_map_points$lng), lat2 = max(case_study_map_points$lat)
-        )
-    } else {
-      m <- m |> setView(lng = -128.6, lat = 54.3, zoom = 8)
-    }
-    m
+    m <- m |>
+      addEasyButton(easyButton(
+        icon = "<span class='zoom-bc-label'>Reset View</span>",
+        title = "Reset View",
+        position = "topleft",
+        onClick = htmlwidgets::JS(sprintf(
+          "function(btn, map) { map.fitBounds([[%f, %f], [%f, %f]]); }",
+          BC_BOUNDS$lat1, BC_BOUNDS$lng1, BC_BOUNDS$lat2, BC_BOUNDS$lng2
+        ))
+      ))
+    
+    m |> fitBounds(
+      lng1 = BC_BOUNDS$lng1, lat1 = BC_BOUNDS$lat1,
+      lng2 = BC_BOUNDS$lng2, lat2 = BC_BOUNDS$lat2
+    )
   })
   
   # redraw markers whenever filters or the active dataset change
@@ -535,10 +560,10 @@ server <- function(input, output, session) {
       grp <- clustered[clustered$tsa_name == tsa, , drop = FALSE]
       proxy <- proxy |> addCircleMarkers(
         data = grp, lng = ~lng, lat = ~lat, layerId = ~point_id,
-        radius = 7, color = BASE_COLOR, fillColor = BASE_COLOR, weight = 1, fillOpacity = 0.9,
+        radius = 7, color = "#ffffff", fillColor = BASE_COLOR, weight = 1.5, fillOpacity = 1,
         label = ~tip,
         labelOptions = labelOptions(direction = "top", sticky = TRUE),
-        clusterOptions = markerClusterOptions(),
+        clusterOptions = markerClusterOptions(spiderfyDistanceMultiplier = 2),
         clusterId = paste0("tsa_", tsa)
       )
     }
@@ -548,7 +573,8 @@ server <- function(input, output, session) {
         data = highlighted, lng = ~lng, lat = ~lat, layerId = ~point_id,
         radius = 9, color = BASE_COLOR, fillColor = HIGHLIGHT_COLOR, weight = 2, fillOpacity = 1,
         label = ~tip,
-        labelOptions = labelOptions(direction = "top", sticky = TRUE)
+        labelOptions = labelOptions(direction = "top", sticky = TRUE),
+        options = pathOptions(pane = "highlighted")
       )
     }
   })
@@ -563,15 +589,8 @@ server <- function(input, output, session) {
       active_dataset(NULL)
     } else {
       active_dataset(ds)
-      session$sendCustomMessage("openRightSidebar", list())
-      
       group <- case_study_map_points[case_study_map_points$dataset_name == ds, , drop = FALSE]
-      if (nrow(group) > 1) {
-        leafletProxy("map") |> fitBounds(
-          lng1 = min(group$lng), lat1 = min(group$lat),
-          lng2 = max(group$lng), lat2 = max(group$lat)
-        )
-      }
+      session$sendCustomMessage("zoomToSites", list(lats = group$lat, lngs = group$lng))
     }
   })
   
@@ -594,8 +613,27 @@ server <- function(input, output, session) {
       notes
     }
     
+    org_title <- group$org_title[1]
+    org_url   <- group$org_url[1]
+    pub_year  <- group$publication_year[1]
+    
     tagList(
       h3(class = "details-dataset-title", group$dataset_title[1]),
+      
+      if (nzchar(org_title)) {
+        tagList(
+          h5(class = "details-subhead", "Organization"),
+          p(class = "details-dataset-org",
+            if (nzchar(org_url)) a(href = org_url, target = "_blank", rel = "noopener", org_title) else org_title)
+        )
+      },
+      
+      if (nzchar(pub_year)) {
+        tagList(
+          h5(class = "details-subhead", "Publication Year"),
+          p(class = "details-dataset-year", pub_year)
+        )
+      },
       
       if (length(tags_list) > 0) {
         tagList(
@@ -619,7 +657,7 @@ server <- function(input, output, session) {
         h5(class = "details-subhead", paste0("Sites (", nrow(group), ")")),
         tags$ul(class = "details-site-list",
                 lapply(seq_len(nrow(group)), function(i) {
-                  tags$li(sprintf("%.5f, %.5f", group$lat[i], group$lng[i]))
+                  tags$li(paste0(group$lat_raw[i], ", ", group$lng_raw[i]))
                 })
         )
       ),

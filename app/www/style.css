@@ -122,7 +122,7 @@ header.masthead {
 .navbar-nav .nav-link {
   color: white;
   font-weight: 700;
-  font-size: 0.95rem;
+  font-size: 14px;
   letter-spacing: 1px;
   padding: 8px 12px;
   text-transform: uppercase;
@@ -141,7 +141,7 @@ header.masthead {
   margin: 1rem;
   cursor: pointer;
 }
-.navbar-toggler .fa { font-size: 1.5rem; }
+.navbar-toggler .fa { font-size: 22px; }
 
 /* smaller screen */
 .navbar-collapse { display: none; }
@@ -185,7 +185,7 @@ header.masthead {
 .navbar .dropdown-menu a {
   color: white;
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 13px;
   letter-spacing: 1px;
   padding: 8px 12px !important;
   display: block;
@@ -381,16 +381,17 @@ header.masthead {
   }
 }
 
-.details-tags { margin-bottom: 12px; display: flex; flex-wrap: wrap; gap: 8px; }
+.details-tags { margin-bottom: 12px; display: flex; flex-wrap: wrap; gap: 6px; }
 .details-tag {
   display: inline-block;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
+  line-height: 1.4;
   color: #1f2933;
   background: #e8aa00;
   border: none;
-  border-radius: 10px;
-  padding: 6px 16px;
+  border-radius: 5px;
+  padding: 3px 10px;
 }
 
 .details-tags-heading {
@@ -400,4 +401,139 @@ header.masthead {
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: #52606d;
+}
+
+/* ==========================================================================
+   map layers control
+========================================================================== */
+#map-container { isolation: isolate; }
+
+#map .leaflet-control-layers,
+#map .easy-button-container {
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+#map .leaflet-control-layers-toggle,
+#map .easy-button-button {
+  width: auto;
+  height: auto;
+  display: block;
+  background-image: none;
+  background-color: #fff !important;
+  color: #1f2933 !important;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Raleway', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: normal;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+#map .leaflet-control-layers-toggle::before {
+  content: "\f5fd"; /* fa-layer-group */
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  font-size: 15px;
+}
+
+#map .leaflet-control-layers-toggle::after {
+  content: "Map Layers";
+}
+
+#map .zoom-bc-label {
+  font: inherit;
+}
+
+#map .leaflet-control-layers {
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  border: none;
+}
+
+#map .leaflet-control-layers-toggle:hover,
+#map .easy-button-button:hover {
+  background-color: #f4f4f4 !important;
+}
+
+#map .leaflet-control-layers-expanded .leaflet-control-layers-list::before {
+  content: "Map layers";
+  display: block;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: #1f2933;
+}
+
+@media (max-width: 768px) {
+  #map .leaflet-top { top: 52px; }
+}
+
+#map .leaflet-tooltip {
+  font-family: 'Raleway', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: #1f2933;
+  padding: 10px 14px;
+  border-radius: 6px;
+  border: none;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+  white-space: normal;
+  width: max-content;
+  max-width: 320px;
+}
+
+/* cluster icons */
+#map .marker-cluster-small,
+#map .marker-cluster-medium,
+#map .marker-cluster-large {
+  background-color: rgba(31, 41, 51, 0.25);
+}
+
+#map .marker-cluster-small div,
+#map .marker-cluster-medium div,
+#map .marker-cluster-large div {
+  background-color: #1f2933;
+  color: #fff;
+  font-family: 'Raleway', sans-serif;
+  font-weight: 700;
+}
+
+/* zoom to BC button */
+#map .easy-button-container {
+  border: none;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+#map .easy-button-button {
+  width: auto;
+  height: auto;
+  padding: 8px 12px;
+  background-color: #09322e;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+#map .easy-button-button:hover {
+  background-color: #e8aa00;
+  color: #09322e;
+}
+
+#map .zoom-bc-label {
+  font-family: 'Raleway', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
 }

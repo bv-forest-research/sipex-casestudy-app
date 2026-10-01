@@ -425,8 +425,8 @@ ui <- fluidPage(
     
     div(id = "mobile-overlay", class = "mobile-overlay"),
     
-    div(class = "mobile-toggle-btn mobile-toggle-left", onclick = "toggleSidebar('left')", HTML("&#9776;")),
-    div(class = "mobile-toggle-btn mobile-toggle-right", onclick = "toggleSidebar('right')", HTML("&#8942;"))
+    div(class = "mobile-toggle-btn mobile-toggle-left", onclick = "toggleSidebar('left')", "Filters"),
+    div(class = "mobile-toggle-btn mobile-toggle-right", onclick = "toggleSidebar('right')", "Details")
   )
 )
 

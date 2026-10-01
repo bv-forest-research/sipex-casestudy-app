@@ -88,12 +88,16 @@ header.masthead {
 }
 
 @media (max-width: 768px) {
-  .header-flex-container { flex-direction: column; gap: 1rem; }
-  .main-logo { flex: 1; justify-content: center; }
-  .right-content { flex: 1; align-items: center; width: 100%; }
-  .partner-logos { justify-items: center; gap: 1rem; }
-  .partner-logos a:first-child, .partner-logos a:last-child { justify-self: center; text-align: center; }
-  .partner-logos img { max-width: 45%; }
+  .header-brand-row { padding: 10px 16px; }
+  .header-flex-container { flex-direction: row; gap: 12px; }
+  .main-logo { flex: 0 0 auto; justify-content: flex-start; }
+  .main-logo img { height: 36px; }
+  .right-content { flex: 0 1 auto; width: auto; }
+  .partner-logos { gap: 10px; }
+  .partner-logos a:first-child,
+  .partner-logos a:last-child { justify-self: center; }
+  .partner-logos img { height: 22px; max-width: none; }
+  .navbar-toggler { margin: 4px 8px; }
 }
 
 /* ---- navbar ---- */
@@ -363,13 +367,17 @@ header.masthead {
     justify-content: center;
     position: absolute;
     top: 12px;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: #1f2933;
-    color: #f5f7fa;
+    padding: 8px 14px;
+    border-radius: 8px;
+    background: #fff;
+    color: #1f2933;
+    font-family: 'Raleway', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
     z-index: 950;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     cursor: pointer;
   }
   .mobile-toggle-left { left: 10px; }
@@ -379,6 +387,8 @@ header.masthead {
   .sidebar-wrapper.right.open ~ .mobile-overlay {
     display: block;
   }
+  
+  .sidebar-wrapper.open ~ .mobile-toggle-btn { display: none; }
 }
 
 .details-tags { margin-bottom: 12px; display: flex; flex-wrap: wrap; gap: 6px; }
@@ -435,13 +445,6 @@ header.masthead {
   text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
-}
-
-#map .leaflet-control-layers-toggle::before {
-  content: "\f5fd"; /* fa-layer-group */
-  font-family: "Font Awesome 6 Free";
-  font-weight: 900;
-  font-size: 15px;
 }
 
 #map .leaflet-control-layers-toggle::after {

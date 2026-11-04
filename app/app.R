@@ -22,7 +22,7 @@ category_labels <- c(
   value = "Management Objective",
   wildlife_species = "Wildlife Species",
   technique = "Technique Method",
-  technique_2      = "Technique Method",
+  silviculture.system = "Silviculture System",
   wildlife_species = "Wildlife Species"
 )
 
@@ -181,6 +181,9 @@ if (length(whitelist_rows) == 0) {
 } else {
   tag_whitelist <- do.call(rbind, whitelist_rows)
 }
+
+tag_whitelist$category[tag_whitelist$category == "technique_2"] <- "technique"
+tag_whitelist <- tag_whitelist[!duplicated(tag_whitelist[, c("tag", "category")]), , drop = FALSE]
 
 # ---------------------------------------------------------------------------------------
 # only keep dataset tags that match the whitelist and combine that with the dataset slug
@@ -347,6 +350,12 @@ header_html <- r"[
           <li class="nav-item">
             <a class="nav-link" href="https://sipexchangebc.com/">Home</a>
           </li>
+          <li class="nav-item">
+            <a class="nav-link" href="https://resources.sipexchangebc.com/">Explore Resources</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="https://sipexchangebc.com/featured-topics/">Featured Topics</a>
+          </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" onclick="toggleDropdown(event, 'cop-dropdown')">Communities of Practice</a>
             <ul class="dropdown-menu" id="cop-dropdown">
@@ -358,18 +367,15 @@ header_html <- r"[
           <li class="nav-item">
             <a class="nav-link" href="https://sipexchangebc.com/training-and-education">Training &amp; Education</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="https://resources.sipexchangebc.com/">Explore Resources</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="https://sipexchangebc.com/featured-topics/">Featured Topics</a>
-          </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" onclick="toggleDropdown(event, 'help-dropdown')">Help</a>
             <ul class="dropdown-menu" id="help-dropdown">
               <li><a class="dropdown-item" href="https://sipexchangebc.com/help/">Resources</a></li>
               <li><a class="dropdown-item" href="https://sipexchangebc.com/glossary/">Glossary</a></li>
             </ul>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="https://sip.bvcentre.ca/">About &amp; SIP</a>
           </li>
           <li class="nav-item cta-nav-item">
             <a class="cta-button" href="https://sipexchangebc.com/need-help-with-a-silviculture-problem/">Need Help With a Problem?</a>
@@ -434,6 +440,14 @@ server <- function(input, output, session) {
   
   active_dataset <- reactiveVal(NULL)
   
+  notes_expanded <- reactiveVal(FALSE)
+  
+  observeEvent(active_dataset(), notes_expanded(FALSE), ignoreNULL = FALSE)
+  
+  observeEvent(input$toggle_notes, {
+    notes_expanded(!notes_expanded())
+  })
+  
   filter_is_active <- function(cat) {
     cond <- conditional_filters[[cat]]
     if (is.null(cond)) return(TRUE)
@@ -447,6 +461,10 @@ server <- function(input, output, session) {
     if (length(year_ranges) > 1) {
       updatePickerInput(session, "filter_publication_year", selected = "All years")
     }
+    leafletProxy("map") |> fitBounds(
+      lng1 = BC_BOUNDS$lng1, lat1 = BC_BOUNDS$lat1,
+      lng2 = BC_BOUNDS$lng2, lat2 = BC_BOUNDS$lat2
+    )
   })
   
   observe({
@@ -607,7 +625,8 @@ server <- function(input, output, session) {
     tags_list <- tags_list[nzchar(tags_list)]
     
     notes <- group$dataset_notes[1]
-    notes_short <- if (nzchar(notes) && nchar(notes) > 300) {
+    notes_is_long <- nchar(notes) > 300
+    notes_text <- if (notes_is_long && !notes_expanded()) {
       paste0(substr(notes, 1, 300), "...")
     } else {
       notes
@@ -646,10 +665,17 @@ server <- function(input, output, session) {
         )
       },
       
-      if (nzchar(notes_short)) {
+      if (nzchar(notes)) {
         tagList(
           h5(class = "details-subhead", "Description"),
-          p(class = "details-dataset-notes", notes_short)
+          p(class = "details-dataset-notes", notes_text),
+          if (notes_is_long) {
+            actionLink(
+              "toggle_notes",
+              if (notes_expanded()) "Show less" else "Show more",
+              class = "details-show-more"
+            )
+          }
         )
       },
       
@@ -663,7 +689,7 @@ server <- function(input, output, session) {
       ),
       
       a(class = "details-link-button", href = group$dataset_url[1],
-        target = "_blank", rel = "noopener", "View Full Dataset \u2192")
+        target = "_blank", rel = "noopener", "View Full Resource \u2192")
     )
   })
 }
